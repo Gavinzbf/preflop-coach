@@ -166,10 +166,42 @@ export const PreflopCoach: React.FC = () => {
 
                 {/* AI反馈 */}
                 <div className="bg-gray-700 rounded-lg p-6">
-                  <h4 className="text-lg font-bold mb-3">🤖 AI教练分析</h4>
-                  <p className="text-gray-200 leading-relaxed">
-                    {analysisResult.feedback}
-                  </p>
+                  <h4 className="text-lg font-bold mb-4 flex items-center">
+                    🤖 <span className="ml-2">AI教练分析</span>
+                  </h4>
+                  <div className="text-gray-200 leading-relaxed space-y-3">
+                    {(() => {
+                      // 首先尝试按双换行符分段
+                      if (analysisResult.feedback.includes('\n\n')) {
+                        return analysisResult.feedback.split('\n\n').map((paragraph, index) => {
+                          if (paragraph.trim()) {
+                            return (
+                              <p key={`paragraph-${index}-${paragraph.slice(0, 10)}`} className="text-sm sm:text-base leading-relaxed">
+                                {paragraph.trim()}
+                              </p>
+                            );
+                          }
+                          return null;
+                        });
+                      }
+
+                      // 如果没有双换行符，按句号分段（每2-3句为一段）
+                      const sentences = analysisResult.feedback.split('。').filter(s => s.trim());
+                      const paragraphs = [];
+                      for (let i = 0; i < sentences.length; i += 2) {
+                        const paragraph = sentences.slice(i, i + 2).join('。') + (i + 2 < sentences.length ? '。' : '');
+                        if (paragraph.trim()) {
+                          paragraphs.push(paragraph);
+                        }
+                      }
+
+                      return paragraphs.map((paragraph, index) => (
+                        <p key={`sentence-${index}-${paragraph.slice(0, 10)}`} className="text-sm sm:text-base leading-relaxed">
+                          {paragraph}
+                        </p>
+                      ));
+                    })()}
+                  </div>
                 </div>
 
                 {/* 下一题按钮 */}

@@ -47,15 +47,15 @@ function generateAnalysisPrompt(
 
 胜率数据：你的手牌对抗对手范围的胜率为 ${equity.toFixed(1)}%
 
-请根据以上信息，生成一段分析反馈。反馈需要包含：
+请根据以上信息，生成一段分析反馈。要求：
 
-1. 对用户选择的直接评判（正确、错误、或有待商榷）
-2. 引用计算出的胜率来支撑你的观点
-3. 解释该选择背后的逻辑，以及可能带来的好/坏后果
-4. 指出GTO（或最优）的打法是什么，并解释为什么
-5. 给出简洁的建议，帮助玩家提升
+1. 首先直接评判用户选择（正确/错误/有待商榷）
+2. 引用胜率数据来支撑观点
+3. 解释选择的逻辑和后果
+4. 指出GTO最优打法并解释原因
+5. 给出简洁的改进建议
 
-请用中文回答，语气要友好鼓励，但专业准确。控制在200-300字以内。`;
+请用中文回答，语气友好鼓励但专业准确。请使用段落分隔，让内容更易读。控制在250-350字以内。`;
 }
 
 // 调用Gemini API
@@ -191,7 +191,17 @@ function generateFallbackFeedback(
   const gtoRec = generateGTORecommendation(scenario, equity);
 
   if (isCorrect) {
-    return `你的选择"${userChoice.label}"是正确的！根据计算，你的胜率为${equity.toFixed(1)}%。${gtoRec === userChoice.action ? '这符合GTO最优策略。' : ''}继续保持这种决策水平，你会看到长期的进步。记住，翻前决策的关键是position + hand strength + action，你掌握得很好！`;
+    return `✅ 你的选择"${userChoice.label}"是正确的！
+
+根据计算，你的胜率为${equity.toFixed(1)}%。${gtoRec === userChoice.action ? '这符合GTO最优策略。' : ''}
+
+继续保持这种决策水平，你会看到长期的进步。记住，翻前决策的关键是position + hand strength + action，你掌握得很好！`;
   }
-  return `你的选择"${userChoice.label}"不太理想。考虑到你的胜率为${equity.toFixed(1)}%，更好的选择可能是${gtoRec}。${userChoice.action === 'fold' && equity > 50 ? '不要过于保守，' : userChoice.action === 'raise' && equity < 40 ? '要避免过度激进，' : ''}记住要根据position、胜率和对手行动来做决策。每个错误都是学习的机会！`;
+  return `❌ 你的选择"${userChoice.label}"不太理想。
+
+考虑到你的胜率为${equity.toFixed(1)}%，更好的选择可能是${gtoRec}。
+
+${userChoice.action === 'fold' && equity > 50 ? '不要过于保守，' : userChoice.action === 'raise' && equity < 40 ? '要避免过度激进，' : ''}记住要根据position、胜率和对手行动来做决策。
+
+每个错误都是学习的机会！`;
 }
